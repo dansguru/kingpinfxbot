@@ -108,8 +108,8 @@ const useMobileMenuConfig = (client?: RootStore['client']) => {
                 },
                 {
                     as: 'a',
-                    href: standalone_routes.deriv_app,
-                    label: localize("Trader's Hub"),
+                    href: standalone_routes.bot,
+                    label: localize('Trade'),
                     LeftComponent: LegacyHomeOldIcon,
                 },
                 {
