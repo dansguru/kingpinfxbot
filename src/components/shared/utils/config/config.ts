@@ -156,6 +156,11 @@ export const getOAuthRedirectUri = () => {
     return 'https://kingpinfxbot.vercel.app';
 };
 
+export const getOidcRedirectCallbackUri = () => {
+    // Must match the redirect URL registered for the OIDC client exactly.
+    return 'https://kingpinfxbot.vercel.app/callback';
+};
+
 export const generateOAuthURL = () => {
     const { getOauthURL } = URLUtils;
     const oauth_url = getOauthURL();

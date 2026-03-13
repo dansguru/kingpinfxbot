@@ -26,6 +26,7 @@ import { LegacyGuide1pxIcon } from '@deriv/quill-icons/Legacy';
 import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
+import { getOidcRedirectCallbackUri } from '@/components/shared/utils/config/config';
 import RunPanel from '../../components/run-panel';
 import ChartModal from '../chart/chart-modal';
 import Dashboard from '../dashboard';
@@ -240,7 +241,8 @@ const AppWrapper = observer(() => {
             }
 
             await requestOidcAuthentication({
-                redirectCallbackUri: `${window.location.origin}/callback`,
+                redirectCallbackUri: getOidcRedirectCallbackUri(),
+                postLoginRedirectUri: window.location.href,
                 ...(query_param_currency
                     ? {
                           state: {

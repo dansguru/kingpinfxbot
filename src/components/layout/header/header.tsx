@@ -16,6 +16,7 @@ import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { Localize, useTranslations } from '@deriv-com/translations';
 import { Header, useDevice, Wrapper } from '@deriv-com/ui';
 import { Tooltip } from '@deriv-com/ui';
+import { getOidcRedirectCallbackUri } from '@/components/shared/utils/config/config';
 import { AppLogo } from '../app-logo';
 import AccountsInfoLoader from './account-info-loader';
 import AccountSwitcher from './account-switcher';
@@ -153,7 +154,8 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                                     // Always use OIDC if TMB is not enabled
                                     try {
                                         await requestOidcAuthentication({
-                                            redirectCallbackUri: `${window.location.origin}/callback`,
+                                            redirectCallbackUri: getOidcRedirectCallbackUri(),
+                                            postLoginRedirectUri: window.location.href,
                                             ...(query_param_currency
                                                 ? {
                                                       state: {
