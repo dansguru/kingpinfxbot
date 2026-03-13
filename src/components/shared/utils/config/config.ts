@@ -200,7 +200,8 @@ export const startDerivPkceLogin = async (state?: Record<string, unknown>) => {
     url.searchParams.set('response_type', 'code');
     url.searchParams.set('client_id', getOAuthClientId());
     url.searchParams.set('redirect_uri', getDerivAuthRedirectUri());
-    url.searchParams.set('scope', 'account manage trade');
+    // Scopes are space-delimited tokens. "account manage" in the dashboard corresponds to `account_manage`.
+    url.searchParams.set('scope', 'account_manage trade');
     url.searchParams.set('state', oauth_state);
     url.searchParams.set('code_challenge', code_challenge);
     url.searchParams.set('code_challenge_method', 'S256');

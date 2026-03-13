@@ -10,6 +10,13 @@ const CallbackPage = () => {
         const run = async () => {
             try {
                 const url_params = new URLSearchParams(window.location.search);
+                const oauth_error = url_params.get('error');
+                const oauth_error_description = url_params.get('error_description');
+                if (oauth_error) {
+                    setError(`${oauth_error}: ${oauth_error_description || 'Login failed.'}`);
+                    return;
+                }
+
                 const code = url_params.get('code');
                 const state = url_params.get('state');
 
