@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import PWAInstallButton from '@/components/pwa-install-button';
-import { generateOAuthURL, standalone_routes } from '@/components/shared';
+import { standalone_routes } from '@/components/shared';
 import Button from '@/components/shared_ui/button';
 import useActiveAccount from '@/hooks/api/account/useActiveAccount';
 import { useOauth2 } from '@/hooks/auth/useOauth2';
@@ -162,10 +162,9 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                                                   }
                                                 : {}),
                                         });
-                                    } catch (err) {
-                                        handleOidcAuthFailure(err);
-                                        window.location.replace(generateOAuthURL());
-                                    }
+                                     } catch (err) {
+                                         handleOidcAuthFailure(err);
+                                     }
                                 }
                             } catch (error) {
                                 // eslint-disable-next-line no-console
