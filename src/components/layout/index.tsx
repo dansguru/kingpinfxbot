@@ -9,7 +9,7 @@ import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useStore } from '@/hooks/useStore';
 import useTMB from '@/hooks/useTMB';
 import { handleOidcAuthFailure } from '@/utils/auth-utils';
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
+import { startDerivPkceLogin } from '@/components/shared/utils/config/config';
 import { useDevice } from '@deriv-com/ui';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '../shared';
 import Footer from './footer';
@@ -168,16 +168,7 @@ const Layout = observer(() => {
                         sessionStorage.setItem('query_param_currency', query_param_currency);
                     }
                     try {
-                        await requestOidcAuthentication({
-                            redirectCallbackUri: `${window.location.origin}/callback`,
-                            ...(query_param_currency
-                                ? {
-                                      state: {
-                                          account: query_param_currency,
-                                      },
-                                  }
-                                : {}),
-                        });
+                        await startDerivPkceLogin(query_param_currency ? { account: query_param_currency } : undefined);
                     } catch (err) {
                         setIsAuthenticating(false);
                         handleOidcAuthFailure(err);

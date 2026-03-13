@@ -23,10 +23,9 @@ import {
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
 } from '@deriv/quill-icons/LabelPaired';
 import { LegacyGuide1pxIcon } from '@deriv/quill-icons/Legacy';
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
+import { startDerivPkceLogin } from '@/components/shared/utils/config/config';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { getOidcRedirectCallbackUri } from '@/components/shared/utils/config/config';
 import RunPanel from '../../components/run-panel';
 import ChartModal from '../chart/chart-modal';
 import Dashboard from '../dashboard';
@@ -240,17 +239,7 @@ const AppWrapper = observer(() => {
                 return;
             }
 
-            await requestOidcAuthentication({
-                redirectCallbackUri: getOidcRedirectCallbackUri(),
-                postLoginRedirectUri: window.location.href,
-                ...(query_param_currency
-                    ? {
-                          state: {
-                              account: query_param_currency,
-                          },
-                      }
-                    : {}),
-            });
+            await startDerivPkceLogin(query_param_currency ? { account: query_param_currency } : undefined);
         } catch (err) {
             handleOidcAuthFailure(err);
         }

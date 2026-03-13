@@ -4,7 +4,8 @@ import Cookies from 'js-cookie';
 import RootStore from '@/stores/root-store';
 import { handleOidcAuthFailure } from '@/utils/auth-utils';
 import { Analytics } from '@deriv-com/analytics';
-import { OAuth2Logout, requestOidcAuthentication } from '@deriv-com/auth-client';
+import { OAuth2Logout } from '@deriv-com/auth-client';
+import { startDerivPkceLogin } from '@/components/shared/utils/config/config';
 
 /**
  * Provides an object with properties: `oAuthLogout`, `retriggerOAuth2Login`, and `isSingleLoggingIn`.
@@ -79,12 +80,7 @@ export const useOauth2 = ({
     };
     const retriggerOAuth2Login = async () => {
         try {
-            await requestOidcAuthentication({
-                redirectCallbackUri: `${window.location.origin}/callback`,
-                postLogoutRedirectUri: window.location.origin,
-            }).catch(err => {
-                handleOidcAuthFailure(err);
-            });
+            await startDerivPkceLogin();
         } catch (error) {
             handleOidcAuthFailure(error);
         }

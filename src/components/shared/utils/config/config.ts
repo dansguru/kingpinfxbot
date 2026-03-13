@@ -161,6 +161,53 @@ export const getOidcRedirectCallbackUri = () => {
     return 'https://kingpinfxbot.vercel.app/callback';
 };
 
+const base64UrlEncode = (bytes: ArrayBuffer) => {
+    const arr = new Uint8Array(bytes);
+    let str = '';
+    for (let i = 0; i < arr.length; i++) str += String.fromCharCode(arr[i]);
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+};
+
+const randomString = (length = 64) => {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, b => charset[b % charset.length]).join('');
+};
+
+export const DERIV_AUTH_ORIGIN = 'https://auth.deriv.com';
+
+export const getDerivAuthRedirectUri = () => {
+    const hostname = window.location.hostname;
+    const is_local = /^(localhost|127\.0\.0\.1)$/i.test(hostname);
+    if (is_local) return `${window.location.origin.replace(/\/$/, '')}/callback`;
+
+    return 'https://kingpinfxbot.vercel.app/callback';
+};
+
+export const startDerivPkceLogin = async (state?: Record<string, unknown>) => {
+    const code_verifier = randomString(64);
+    const encoder = new TextEncoder();
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(code_verifier));
+    const code_challenge = base64UrlEncode(digest);
+
+    const oauth_state = randomString(32);
+    sessionStorage.setItem('kp.oauth_code_verifier', code_verifier);
+    sessionStorage.setItem('kp.oauth_state', oauth_state);
+    if (state) sessionStorage.setItem('kp.oauth_state_payload', JSON.stringify(state));
+
+    const url = new URL('/oauth2/auth', DERIV_AUTH_ORIGIN);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('client_id', getOAuthClientId());
+    url.searchParams.set('redirect_uri', getDerivAuthRedirectUri());
+    url.searchParams.set('scope', 'account manage trade');
+    url.searchParams.set('state', oauth_state);
+    url.searchParams.set('code_challenge', code_challenge);
+    url.searchParams.set('code_challenge_method', 'S256');
+
+    window.location.assign(url.toString());
+};
+
 export const generateOAuthURL = () => {
     const { getOauthURL } = URLUtils;
     const oauth_url = getOauthURL();

@@ -1,111 +1,114 @@
-import Cookies from 'js-cookie';
-import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
 import { generateDerivApiInstance } from '@/external/bot-skeleton/services/api/appId';
-import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
-import useTMB from '@/hooks/useTMB';
-import { clearAuthData } from '@/utils/auth-utils';
-import { Callback } from '@deriv-com/auth-client';
 import { Button } from '@deriv-com/ui';
-
-/**
- * Gets the selected currency or falls back to appropriate defaults
- */
-const getSelectedCurrency = (
-    tokens: Record<string, string>,
-    clientAccounts: Record<string, any>,
-    state: any
-): string => {
-    const getQueryParams = new URLSearchParams(window.location.search);
-    const currency =
-        (state && state?.account) ||
-        getQueryParams.get('account') ||
-        sessionStorage.getItem('query_param_currency') ||
-        '';
-    const firstAccountKey = tokens.acct1;
-    const firstAccountCurrency = clientAccounts[firstAccountKey]?.currency;
-
-    const validCurrencies = [...fiat_currencies_display_order, ...crypto_currencies_display_order];
-    if (tokens.acct1?.startsWith('VR') || currency === 'demo') return 'demo';
-    if (currency && validCurrencies.includes(currency.toUpperCase())) return currency;
-    return firstAccountCurrency || 'USD';
-};
+import React from 'react';
+import { DERIV_AUTH_ORIGIN, getDerivAuthRedirectUri, getOAuthClientId } from '@/components/shared/utils/config/config';
 
 const CallbackPage = () => {
-    return (
-        <Callback
-            onSignInSuccess={async (tokens: Record<string, string>, rawState: unknown) => {
-                const state = rawState as { account?: string } | null;
-                const accountsList: Record<string, string> = {};
-                const clientAccounts: Record<string, { loginid: string; token: string; currency: string }> = {};
+    const [error, setError] = React.useState<string | null>(null);
 
-                for (const [key, value] of Object.entries(tokens)) {
-                    if (key.startsWith('acct')) {
-                        const tokenKey = key.replace('acct', 'token');
-                        if (tokens[tokenKey]) {
-                            accountsList[value] = tokens[tokenKey];
-                            clientAccounts[value] = {
-                                loginid: value,
-                                token: tokens[tokenKey],
-                                currency: '',
-                            };
-                        }
-                    } else if (key.startsWith('cur')) {
-                        const accKey = key.replace('cur', 'acct');
-                        if (tokens[accKey]) {
-                            clientAccounts[tokens[accKey]].currency = value;
+    React.useEffect(() => {
+        const run = async () => {
+            try {
+                const url_params = new URLSearchParams(window.location.search);
+                const code = url_params.get('code');
+                const state = url_params.get('state');
+
+                if (!code) {
+                    setError('Missing authorization code.');
+                    return;
+                }
+
+                const stored_state = sessionStorage.getItem('kp.oauth_state');
+                if (stored_state && state && stored_state !== state) {
+                    setError('Invalid login state. Please try again.');
+                    return;
+                }
+
+                const code_verifier = sessionStorage.getItem('kp.oauth_code_verifier');
+                if (!code_verifier) {
+                    setError('Missing PKCE verifier. Please try logging in again.');
+                    return;
+                }
+
+                const state_payload_raw = sessionStorage.getItem('kp.oauth_state_payload');
+                const state_payload = state_payload_raw ? (JSON.parse(state_payload_raw) as { account?: string }) : null;
+
+                const body = new URLSearchParams();
+                body.set('grant_type', 'authorization_code');
+                body.set('client_id', getOAuthClientId());
+                body.set('redirect_uri', getDerivAuthRedirectUri());
+                body.set('code_verifier', code_verifier);
+                body.set('code', code);
+
+                const token_res = await fetch(`${DERIV_AUTH_ORIGIN}/oauth2/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'application/json',
+                    },
+                    body: body.toString(),
+                });
+
+                if (!token_res.ok) {
+                    const text = await token_res.text();
+                    setError(`Token exchange failed (${token_res.status}). ${text}`);
+                    return;
+                }
+
+                const token_json = (await token_res.json()) as {
+                    access_token?: string;
+                    expires_in?: number;
+                    token_type?: string;
+                };
+
+                const access_token = token_json.access_token;
+                if (!access_token) {
+                    setError('Token exchange succeeded but no access_token was returned.');
+                    return;
+                }
+
+                // Store token for API usage
+                localStorage.setItem('authToken', access_token);
+
+                // Try to authorize immediately to resolve loginid/currency
+                let selected_currency = state_payload?.account || 'USD';
+                try {
+                    const api = await generateDerivApiInstance();
+                    if (api) {
+                        const { authorize, error: auth_error } = await api.authorize(access_token);
+                        api.disconnect();
+                        if (!auth_error && authorize) {
+                            if (authorize.country) localStorage.setItem('client.country', authorize.country);
+                            if (authorize.loginid) localStorage.setItem('active_loginid', authorize.loginid);
+                            if (authorize.currency) selected_currency = authorize.currency;
                         }
                     }
+                } catch (e) {
+                    // Non-fatal: app will re-authorize later.
+                    console.error(e);
                 }
 
-                localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                localStorage.setItem('clientAccounts', JSON.stringify(clientAccounts));
+                // Cleanup one-time PKCE items
+                sessionStorage.removeItem('kp.oauth_code_verifier');
+                sessionStorage.removeItem('kp.oauth_state');
+                sessionStorage.removeItem('kp.oauth_state_payload');
 
-                let is_token_set = false;
-
-                const api = await generateDerivApiInstance();
-                if (api) {
-                    const { authorize, error } = await api.authorize(tokens.token1);
-                    api.disconnect();
-                    if (error) {
-                        // Check if the error is due to an invalid token
-                        if (error.code === 'InvalidToken') {
-                            // Set is_token_set to true to prevent the app from getting stuck in loading state
-                            is_token_set = true;
-
-                            // Only emit the InvalidToken event if logged_state is true
-                            const { is_tmb_enabled = false } = useTMB();
-                            if (Cookies.get('logged_state') === 'true' && !is_tmb_enabled) {
-                                // Emit an event that can be caught by the application to retrigger OIDC authentication
-                                globalObserver.emit('InvalidToken', { error });
-                            }
-                            if (Cookies.get('logged_state') === 'false') {
-                                // If the user is not logged out, we need to clear the local storage
-                                clearAuthData();
-                            }
-                        }
-                    } else {
-                        localStorage.setItem('callback_token', authorize.toString());
-                        const clientAccountsArray = Object.values(clientAccounts);
-                        const firstId = authorize?.account_list[0]?.loginid;
-                        const filteredTokens = clientAccountsArray.filter(account => account.loginid === firstId);
-                        if (filteredTokens.length) {
-                            localStorage.setItem('authToken', filteredTokens[0].token);
-                            localStorage.setItem('active_loginid', filteredTokens[0].loginid);
-                            is_token_set = true;
-                        }
-                    }
-                }
-                if (!is_token_set) {
-                    localStorage.setItem('authToken', tokens.token1);
-                    localStorage.setItem('active_loginid', tokens.acct1);
-                }
-                // Determine the appropriate currency to use
-                const selected_currency = getSelectedCurrency(tokens, clientAccounts, state);
-
+                // Preserve prior behavior: go to bot route with account query
                 window.location.replace(window.location.origin + `bot/?account=${selected_currency}`);
-            }}
-            renderReturnButton={() => {
-                return (
+            } catch (e) {
+                console.error(e);
+                setError('Unexpected error during login callback. Please try again.');
+            }
+        };
+
+        run();
+    }, []);
+
+    return (
+        <div style={{ padding: '2.4rem' }}>
+            {error ? (
+                <>
+                    <p>{error}</p>
                     <Button
                         className='callback-return-button'
                         onClick={() => {
@@ -114,9 +117,11 @@ const CallbackPage = () => {
                     >
                         {'Return to Bot'}
                     </Button>
-                );
-            }}
-        />
+                </>
+            ) : (
+                <p>{'Completing login…'}</p>
+            )}
+        </div>
     );
 };
 

@@ -4,8 +4,7 @@ import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { api_base } from '@/external/bot-skeleton';
 import { setAuthData } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
 import { TAuthData } from '@/types/api-types';
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
-import { getOidcRedirectCallbackUri } from '@/components/shared/utils/config/config';
+import { startDerivPkceLogin } from '@/components/shared/utils/config/config';
 // TODO: need to fix this on auth cliet side
 // import { requestSessionActive } from '@deriv-com/auth-client';
 
@@ -394,10 +393,7 @@ const useTMB = (): UseTMBReturn => {
                         setIsAuthenticating(false);
                     }
                     try {
-                        await requestOidcAuthentication({
-                            redirectCallbackUri: getOidcRedirectCallbackUri(),
-                            postLoginRedirectUri: window.location.href,
-                        });
+                        await startDerivPkceLogin();
                     } catch (error) {
                         console.error('Failed to redirect to OAuth:', error);
                         if (setIsAuthenticating) {
