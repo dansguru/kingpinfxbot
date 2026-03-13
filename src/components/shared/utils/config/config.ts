@@ -194,7 +194,8 @@ export const generateOAuthURL = () => {
     }
 
     if (oauth_client_id) {
-        original_url.searchParams.delete('app_id');
+        // Use a numeric `app_id` for OAuth validation, but include `client_id` for the new Developer Portal app.
+        original_url.searchParams.set('app_id', default_app_id.toString());
         original_url.searchParams.set('client_id', oauth_client_id);
         original_url.searchParams.set('redirect_uri', getOAuthRedirectUri());
         original_url.searchParams.set('response_type', 'token');

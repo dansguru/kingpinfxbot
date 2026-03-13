@@ -60,6 +60,7 @@ export const loginUrl = ({ language }: TLoginUrl) => {
         if (date_first_contact) url.searchParams.set('date_first_contact', date_first_contact);
 
         if (oauth_client_id) {
+            url.searchParams.set('app_id', default_app_id.toString());
             url.searchParams.set('client_id', oauth_client_id);
             url.searchParams.set('redirect_uri', oauth_redirect_uri);
             url.searchParams.set('response_type', 'token');
@@ -78,6 +79,7 @@ export const loginUrl = ({ language }: TLoginUrl) => {
         if (date_first_contact) url.searchParams.set('date_first_contact', date_first_contact);
 
         if (oauth_client_id) {
+            url.searchParams.set('app_id', getAppId().toString());
             url.searchParams.set('client_id', oauth_client_id);
             url.searchParams.set('redirect_uri', oauth_redirect_uri);
             url.searchParams.set('response_type', 'token');
