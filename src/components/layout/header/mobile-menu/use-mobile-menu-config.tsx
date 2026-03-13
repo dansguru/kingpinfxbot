@@ -57,8 +57,7 @@ const useMobileMenuConfig = (client?: RootStore['client']) => {
     const is_logged_in = client?.is_logged_in;
     const client_residence = client?.residence;
     const accounts = client?.accounts || {};
-    const { isTmbEnabled } = useTMB();
-    const is_tmb_enabled = window.is_tmb_enabled || isTmbEnabled();
+    const { is_tmb_enabled } = useTMB();
 
     const { hubEnabledCountryList } = useFirebaseCountriesConfig();
 

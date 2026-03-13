@@ -59,7 +59,8 @@ const useTMB = (): UseTMBReturn => {
 
     const is_staging = useMemo(() => window.location.hostname.includes('staging'), []);
     const is_production = useMemo(() => !is_staging, [is_staging]);
-    const isOAuth2Enabled = useMemo(() => is_production || is_staging, [is_production, is_staging]);
+    const is_localhost = useMemo(() => /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname), []);
+    const isOAuth2Enabled = useMemo(() => (is_production || is_staging) && !is_localhost, [is_production, is_staging, is_localhost]);
     const [is_tmb_enabled, setIsTmbEnabled] = useState(false);
     const [, setIsApiInitialized] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -69,6 +70,10 @@ const useTMB = (): UseTMBReturn => {
 
     const getActiveSessions = useCallback(async (): Promise<TMBWebsocketTokens | undefined> => {
         try {
+            if (is_localhost) {
+                return undefined;
+            }
+
             const configServerUrl = localStorage.getItem('config.server_url');
             if (configServerUrl) {
                 const valid_server_urls = [
@@ -143,7 +148,7 @@ const useTMB = (): UseTMBReturn => {
             console.error('Failed to get active sessions:', error);
             return undefined;
         }
-    }, []);
+    }, [is_localhost]);
 
     const processTokens = useCallback((tokens: TokenItem[]) => {
         const accountsList: Record<string, string> = {};
@@ -168,6 +173,12 @@ const useTMB = (): UseTMBReturn => {
     const tmbStatusPromiseRef = useRef<Promise<boolean> | null>(null);
 
     const isTmbEnabled = useCallback(async () => {
+        if (is_localhost) {
+            window.is_tmb_enabled = false;
+            tmbStatusDeterminedRef.current = true;
+            return false;
+        }
+
         // If we've already determined the status, return the cached value
         if (tmbStatusDeterminedRef.current) {
             return window.is_tmb_enabled === true;
@@ -240,7 +251,7 @@ const useTMB = (): UseTMBReturn => {
         })();
 
         return tmbStatusPromiseRef.current;
-    }, [is_staging]);
+    }, [is_staging, is_localhost]);
 
     // Initialize the hook and check TMB status - only run once
     useEffect(() => {

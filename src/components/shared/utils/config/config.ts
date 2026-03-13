@@ -142,11 +142,24 @@ export const getDebugServiceWorker = () => {
     return false;
 };
 
+export const getOAuthClientId = () => {
+    return window.localStorage.getItem('config.oauth_client_id') || process.env.DERIV_OAUTH_CLIENT_ID || '';
+};
+
+export const getOAuthRedirectUri = () => {
+    const from_env = process.env.DERIV_OAUTH_REDIRECT_URI;
+    if (from_env) return from_env;
+
+    return new URL('/', window.location.origin).toString();
+};
+
 export const generateOAuthURL = () => {
     const { getOauthURL } = URLUtils;
     const oauth_url = getOauthURL();
     const original_url = new URL(oauth_url);
     const hostname = window.location.hostname;
+    const oauth_client_id = getOAuthClientId();
+    const { app_id: default_app_id } = getDefaultAppIdAndUrl();
 
     // First priority: Check for configured server URLs (for QA/testing environments)
     const configured_server_url = (LocalStorageUtils.getValue(LocalStorageConstants.configServerURL) ||
@@ -175,6 +188,17 @@ export const generateOAuthURL = () => {
                 original_url.hostname = `oauth.${domain_suffix}`;
             }
         }
+    }
+
+    if (oauth_client_id) {
+        original_url.searchParams.delete('app_id');
+        original_url.searchParams.set('client_id', oauth_client_id);
+        original_url.searchParams.set('redirect_uri', getOAuthRedirectUri());
+        original_url.searchParams.set('response_type', 'token');
+    } else if (!configured_server_url || !/qa/i.test(configured_server_url)) {
+        // Avoid using stale/invalid `config.app_id` values for OAuth when no `client_id` is set.
+        // WebSocket can still use `config.app_id` via `getAppId()` if needed.
+        original_url.searchParams.set('app_id', default_app_id.toString());
     }
     return original_url.toString() || oauth_url;
 };

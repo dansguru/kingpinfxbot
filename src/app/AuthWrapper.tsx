@@ -98,6 +98,86 @@ const setLocalStorageToken = async (
     }
 };
 
+const getAccessTokenFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash || hash.length < 2) return null;
+
+    const hash_params = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+    const access_token = hash_params.get('access_token');
+    if (!access_token) return null;
+
+    hash_params.delete('access_token');
+    hash_params.delete('token_type');
+    hash_params.delete('expires_in');
+
+    const next_hash = hash_params.toString();
+    window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${window.location.search}${next_hash ? `#${next_hash}` : ''}`
+    );
+
+    return access_token;
+};
+
+const setLocalStorageTokenFromAccessToken = async (
+    access_token: string,
+    setIsAuthComplete: React.Dispatch<React.SetStateAction<boolean>>,
+    isOnline: boolean
+) => {
+    try {
+        localStorage.setItem('authToken', access_token);
+
+        if (!isOnline) {
+            console.log('[Auth] Offline mode - storing OAuth access token only');
+            return;
+        }
+
+        const api = await generateDerivApiInstance();
+        if (!api) return;
+
+        const { authorize, error } = await api.authorize(access_token);
+        api.disconnect();
+
+        if (error) {
+            if (error.code === 'InvalidToken') {
+                setIsAuthComplete(true);
+
+                const is_tmb_enabled = window.is_tmb_enabled === true;
+                if (Cookies.get('logged_state') === 'true' && !is_tmb_enabled) {
+                    globalObserver.emit('InvalidToken', { error });
+                }
+
+                if (Cookies.get('logged_state') === 'false') {
+                    clearAuthData();
+                }
+            }
+            return;
+        }
+
+        if (authorize?.country) localStorage.setItem('client.country', authorize.country);
+
+        const loginid = authorize?.loginid || authorize?.account_list?.[0]?.loginid;
+        if (!loginid) return;
+
+        localStorage.setItem('active_loginid', loginid);
+
+        const accountsList: Record<string, string> = { [loginid]: access_token };
+        const clientAccounts: Record<string, { loginid: string; token: string; currency: string }> = {
+            [loginid]: {
+                loginid,
+                token: access_token,
+                currency: authorize?.currency || '',
+            },
+        };
+
+        localStorage.setItem('accountsList', JSON.stringify(accountsList));
+        localStorage.setItem('clientAccounts', JSON.stringify(clientAccounts));
+    } catch (e) {
+        console.error('[Auth] Error handling OAuth access token:', e);
+    }
+};
+
 export const AuthWrapper = () => {
     const [isAuthComplete, setIsAuthComplete] = React.useState(false);
     const { loginInfo, paramsToDelete } = URLUtils.getLoginInfoFromURL();
@@ -106,6 +186,14 @@ export const AuthWrapper = () => {
     React.useEffect(() => {
         const initializeAuth = async () => {
             try {
+                const access_token = getAccessTokenFromHash();
+                if (access_token) {
+                    await setLocalStorageTokenFromAccessToken(access_token, setIsAuthComplete, isOnline);
+                    URLUtils.filterSearchParams(['lang']);
+                    setIsAuthComplete(true);
+                    return;
+                }
+
                 // Pass isOnline to setLocalStorageToken to handle offline mode properly
                 await setLocalStorageToken(loginInfo, paramsToDelete, setIsAuthComplete, isOnline);
                 URLUtils.filterSearchParams(['lang']);

@@ -9,9 +9,7 @@ type AuthLoadingWrapperProps = {
 
 const AuthLoadingWrapper = ({ children }: AuthLoadingWrapperProps) => {
     const { isSingleLoggingIn } = useOauth2();
-    const { isTmbEnabled } = useTMB();
-
-    const is_tmb_enabled = isTmbEnabled() || window.is_tmb_enabled === true;
+    const { is_tmb_enabled } = useTMB();
 
     if (isSingleLoggingIn && !is_tmb_enabled) {
         return <Loader isFullScreen />;
