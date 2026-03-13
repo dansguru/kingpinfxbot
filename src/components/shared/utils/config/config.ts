@@ -194,11 +194,12 @@ export const generateOAuthURL = () => {
     }
 
     if (oauth_client_id) {
-        // Use a numeric `app_id` for OAuth validation, but include `client_id` for the new Developer Portal app.
-        original_url.searchParams.set('app_id', default_app_id.toString());
-        original_url.searchParams.set('client_id', oauth_client_id);
-        original_url.searchParams.set('redirect_uri', getOAuthRedirectUri());
-        original_url.searchParams.set('response_type', 'token');
+        // Deriv's legacy OAuth endpoint uses `app_id` to identify the OAuth app and determines the redirect URL
+        // from the app settings (it may ignore `redirect_uri`).
+        original_url.searchParams.set('app_id', oauth_client_id);
+        original_url.searchParams.delete('client_id');
+        original_url.searchParams.delete('redirect_uri');
+        original_url.searchParams.delete('response_type');
     } else if (!configured_server_url || !/qa/i.test(configured_server_url)) {
         // Avoid using stale/invalid `config.app_id` values for OAuth when no `client_id` is set.
         // WebSocket can still use `config.app_id` via `getAppId()` if needed.
