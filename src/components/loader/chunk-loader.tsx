@@ -1,9 +1,9 @@
-import { Loader } from '@deriv-com/ui';
+import KingpinLoader from './kingpin-loader';
 
 export default function ChunkLoader({ message }: { message: string }) {
     return (
         <div className='app-root'>
-            <Loader />
+            <KingpinLoader size='lg' />
             <div className='load-message'>{message}</div>
         </div>
     );

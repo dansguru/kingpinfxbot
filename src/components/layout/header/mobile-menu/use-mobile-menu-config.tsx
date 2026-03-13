@@ -1,5 +1,6 @@
 import { ComponentProps, ReactNode, useMemo } from 'react';
 import Livechat from '@/components/chat/Livechat';
+import { KingpinMarkIcon } from '@/components/brand/kingpin-logo';
 import useIsLiveChatWidgetAvailable from '@/components/chat/useIsLiveChatWidgetAvailable';
 import { standalone_routes } from '@/components/shared';
 import { useFirebaseCountriesConfig } from '@/hooks/firebase/useFirebaseCountriesConfig';
@@ -20,7 +21,6 @@ import {
     LegacyTheme1pxIcon,
     LegacyWhatsappIcon,
 } from '@deriv/quill-icons/Legacy';
-import { BrandDerivLogoCoralIcon } from '@deriv/quill-icons/Logo';
 import { useTranslations } from '@deriv-com/translations';
 import { ToggleSwitch } from '@deriv-com/ui';
 import { URLConstants } from '@deriv-com/utils';
@@ -102,9 +102,9 @@ const useMobileMenuConfig = (client?: RootStore['client']) => {
             [
                 {
                     as: 'a',
-                    href: standalone_routes.deriv_com,
-                    label: localize('Deriv.com'),
-                    LeftComponent: BrandDerivLogoCoralIcon,
+                    href: '/',
+                    label: localize('KingpinFX'),
+                    LeftComponent: KingpinMarkIcon,
                 },
                 {
                     as: 'a',

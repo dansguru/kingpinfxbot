@@ -1,0 +1,62 @@
+.kingpin-loader {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    color: var(--text-prominent);
+}
+
+.kingpin-loader--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: linear-gradient(180deg, rgba(11, 18, 32, 0.06), rgba(11, 18, 32, 0.02));
+    backdrop-filter: blur(8px);
+}
+
+.kingpin-loader__ring {
+    border-radius: 999px;
+    border: 3px solid rgba(31, 58, 138, 0.18);
+    border-top-color: var(--brand-primary);
+    animation: kingpin-spin 0.9s linear infinite;
+}
+
+.kingpin-loader__ring--sm {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+}
+
+.kingpin-loader__ring--md {
+    width: 44px;
+    height: 44px;
+}
+
+.kingpin-loader__ring--lg {
+    width: 64px;
+    height: 64px;
+    border-width: 4px;
+}
+
+.kingpin-loader__mark {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    color: var(--brand-primary);
+}
+
+.kingpin-loader__message {
+    font-size: 1.4rem;
+    color: var(--text-less-prominent);
+}
+
+@keyframes kingpin-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+

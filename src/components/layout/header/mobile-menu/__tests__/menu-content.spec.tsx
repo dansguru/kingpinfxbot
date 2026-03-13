@@ -32,7 +32,7 @@ describe('MenuContent Component', () => {
         render(<MenuContent />, { wrapper });
         expect(screen.getByText(/Mock Platform Switcher/)).toBeInTheDocument();
         expect(screen.getByText(/Trader's Hub/)).toBeInTheDocument();
-        expect(screen.getByText(/Deriv.com/)).toBeInTheDocument();
+        expect(screen.getByText(/KingpinFX/)).toBeInTheDocument();
     });
 
     it('adjusts text size for mobile devices', () => {

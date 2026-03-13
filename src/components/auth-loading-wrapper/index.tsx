@@ -1,7 +1,7 @@
 import React from 'react';
 import { useOauth2 } from '@/hooks/auth/useOauth2';
 import useTMB from '@/hooks/useTMB';
-import { Loader } from '@deriv-com/ui';
+import KingpinLoader from '@/components/loader/kingpin-loader';
 
 type AuthLoadingWrapperProps = {
     children: React.ReactNode;
@@ -12,7 +12,7 @@ const AuthLoadingWrapper = ({ children }: AuthLoadingWrapperProps) => {
     const { is_tmb_enabled } = useTMB();
 
     if (isSingleLoggingIn && !is_tmb_enabled) {
-        return <Loader isFullScreen />;
+        return <KingpinLoader fullscreen message='Signing you in…' size='lg' />;
     }
 
     return <>{children}</>;

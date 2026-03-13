@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="KingpinFX">
+  <defs>
+    <linearGradient id="kp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1F3A8A"/>
+      <stop offset="1" stop-color="#2D6CDF"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0B1220"/>
+  <path fill="url(#kp)" d="M158 136h62v96l84-96h78l-110 120 116 120h-82l-88-94v94h-60V136z"/>
+  <path fill="#D4AF37" d="M156 382h200a18 18 0 0 0 0-36H156a18 18 0 1 0 0 36z"/>
+</svg>

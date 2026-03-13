@@ -1,5 +1,5 @@
-import { standalone_routes } from '@/components/shared';
-import { DerivLogo, useDevice } from '@deriv-com/ui';
+import { KingpinMarkIcon, KingpinWordmark } from '@/components/brand/kingpin-logo';
+import { useDevice } from '@deriv-com/ui';
 import './app-logo.scss';
 
 export const AppLogo = () => {
@@ -7,6 +7,9 @@ export const AppLogo = () => {
 
     if (!isDesktop) return null;
     return (
-        <DerivLogo className='app-header__logo' href={standalone_routes.deriv_com} target='_blank' variant='wallets' />
+        <a className='app-header__logo' href='/' aria-label='KingpinFX'>
+            <KingpinMarkIcon className='app-header__logo-mark' width={22} height={22} />
+            <KingpinWordmark className='app-header__logo-wordmark' />
+        </a>
     );
 };

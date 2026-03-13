@@ -46,7 +46,7 @@ const MenuContent = observer(({ onOpenSubmenu }: TMenuContentProps) => {
                                     target,
                                     isActive,
                                 }) => {
-                                    const is_deriv_logo = label === 'Deriv.com';
+                                    const is_deriv_logo = label === 'KingpinFX';
                                     if (as === 'a') {
                                         return (
                                             <MenuItem

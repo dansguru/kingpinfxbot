@@ -5,12 +5,12 @@ import {
     LegacyHomeNewIcon as TradershubLogo,
     LegacyReportsIcon as ReportsLogo,
 } from '@deriv/quill-icons/Legacy';
-import {
-    DerivProductBrandLightDerivBotLogoWordmarkIcon as DerivBotLogo,
-    DerivProductBrandLightDerivTraderLogoWordmarkIcon as DerivTraderLogo,
-    PartnersProductBrandLightSmarttraderLogoWordmarkIcon as SmarttraderLogo,
-} from '@deriv/quill-icons/Logo';
 import { localize } from '@deriv-com/translations';
+import { KingpinWordmark } from '@/components/brand/kingpin-logo';
+
+const PlatformWordmark = ({ children }: { children: ReactNode }) => (
+    <span style={{ fontWeight: 700, letterSpacing: '0.01em' }}>{children}</span>
+);
 
 export type PlatformsConfig = {
     active: boolean;
@@ -43,26 +43,26 @@ export type TAccount = {
 export const platformsConfig: PlatformsConfig[] = [
     {
         active: false,
-        buttonIcon: <DerivTraderLogo height={25} width={114.97} />,
+        buttonIcon: <PlatformWordmark>Trade</PlatformWordmark>,
         description: localize('A whole new trading experience on a powerful yet easy to use platform.'),
         href: standalone_routes.trade,
-        icon: <DerivTraderLogo height={32} width={148} />,
+        icon: <PlatformWordmark>Trade</PlatformWordmark>,
         showInEU: true,
     },
     {
         active: true,
-        buttonIcon: <DerivBotLogo height={25} width={94} />,
+        buttonIcon: <KingpinWordmark />,
         description: localize('Automated trading at your fingertips. No coding needed.'),
         href: standalone_routes.bot,
-        icon: <DerivBotLogo height={32} width={121} />,
+        icon: <KingpinWordmark />,
         showInEU: false,
     },
     {
         active: false,
-        buttonIcon: <SmarttraderLogo height={24} width={115} />,
+        buttonIcon: <PlatformWordmark>SmartTrader</PlatformWordmark>,
         description: localize('Trade the world’s markets with our popular user-friendly platform.'),
         href: standalone_routes.smarttrader,
-        icon: <SmarttraderLogo height={32} width={153} />,
+        icon: <PlatformWordmark>SmartTrader</PlatformWordmark>,
         showInEU: false,
     },
 ];

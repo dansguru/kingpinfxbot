@@ -143,14 +143,17 @@ export const getDebugServiceWorker = () => {
 };
 
 export const getOAuthClientId = () => {
-    return window.localStorage.getItem('config.oauth_client_id') || process.env.DERIV_OAUTH_CLIENT_ID || '';
+    // KingpinFX OAuth client_id (not a secret)
+    return '32Hkz9RaXZE6zTGHsImQr';
 };
 
 export const getOAuthRedirectUri = () => {
-    const from_env = process.env.DERIV_OAUTH_REDIRECT_URI;
-    if (from_env) return from_env;
+    // Use origin in local dev, otherwise use the production URL that matches the registered OAuth redirect.
+    const hostname = window.location.hostname;
+    const is_local = /^(localhost|127\.0\.0\.1)$/i.test(hostname);
+    if (is_local) return window.location.origin.replace(/\/$/, '');
 
-    return new URL('/', window.location.origin).toString();
+    return 'https://kingpinfxbot.vercel.app';
 };
 
 export const generateOAuthURL = () => {

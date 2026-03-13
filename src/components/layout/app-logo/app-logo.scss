@@ -4,7 +4,23 @@
         padding-inline-end: 2rem;
         border-inline-end: 1px solid var(--general-section-1);
         height: 32px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        gap: 0.8rem;
+        text-decoration: none;
+        color: var(--text-prominent);
+
+        &:hover {
+            color: var(--brand-primary);
+        }
+    }
+
+    &__logo-mark {
+        color: var(--brand-primary);
+    }
+
+    &__logo-wordmark {
+        font-size: 1.6rem;
+        line-height: 1;
     }
 }

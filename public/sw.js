@@ -1,9 +1,9 @@
-// Comprehensive Service Worker for Deriv Bot Offline Functionality
+// Comprehensive Service Worker for KingpinFX Offline Functionality
 const CACHE_NAME = 'deriv-bot-v1';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache immediately on install
-const PRECACHE_URLS = ['/', '/index.html', '/offline.html', '/manifest.json', '/deriv-logo.svg'];
+const PRECACHE_URLS = ['/', '/index.html', '/offline.html', '/manifest.json', '/kingpinfx-logo.svg'];
 
 console.log('[SW] Service worker script loaded');
 
@@ -310,7 +310,7 @@ async function handleOfflineFallback(request) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Offline - Deriv Bot</title>
+                <title>Offline - KingpinFX</title>
                 <style>
                     body { 
                         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -365,7 +365,7 @@ async function handleOfflineFallback(request) {
             <body>
                 <div class="container">
                     <h1>You're Offline</h1>
-                    <p>Deriv Bot requires an internet connection to function properly. Please check your connection and try again.</p>
+                    <p>KingpinFX requires an internet connection to function properly. Please check your connection and try again.</p>
                     <button onclick="window.location.reload()">Try Again</button>
                     <div class="status">
                         <strong>Connection Status:</strong> <span id="status">Offline</span>

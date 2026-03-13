@@ -35,10 +35,14 @@
     --text-align-right: right;
     --text-align-center: center;
 
-    // Brand primary colors
+    // Brand primary colors (KingpinFX)
     --brand-white: #{constants.$color-white};
     --brand-dark-grey: #{constants.$color-black};
-    --brand-red-coral: #{constants.$color-red};
+    --brand-primary: #1f3a8a;
+    --brand-primary-hover: #162d6f;
+    --brand-accent: #d4af37;
+    // Backwards-compat: keep existing var names used across the app
+    --brand-red-coral: var(--brand-primary);
     --brand-orange: #{constants.$color-orange};
 
     // Brand secondary colors
@@ -99,14 +103,14 @@
         --purchase-disabled-section: #{constants.$color-grey-4};
 
         // Buttons
-        --button-primary-default: var(--brand-red-coral);
+        --button-primary-default: var(--brand-primary);
         --button-secondary-default: #{constants.$color-grey-1};
         --button-tertiary-default: transparent;
-        --button-primary-light-default: #{constants.$alpha-color-red-2};
-        --button-primary-hover: #{constants.$color-red-5};
+        --button-primary-light-default: rgba(31, 58, 138, 0.12);
+        --button-primary-hover: var(--brand-primary-hover);
         --button-secondary-hover: #{constants.$alpha-color-black-3};
-        --button-tertiary-hover: #{constants.$alpha-color-red-1};
-        --button-primary-light-hover: #{constants.$alpha-color-red-3};
+        --button-tertiary-hover: rgba(31, 58, 138, 0.08);
+        --button-primary-light-hover: rgba(31, 58, 138, 0.18);
         --button-toggle-primary: #{constants.$color-blue-3};
         --button-toggle-secondary: #{constants.$color-grey-5};
         --button-toggle-alternate: #{constants.$color-white};
@@ -243,14 +247,14 @@
         --purchase-disabled-section: #{constants.$color-black};
 
         // Buttons
-        --button-primary-default: var(--brand-red-coral);
+        --button-primary-default: var(--brand-primary);
         --button-secondary-default: #{constants.$color-grey-7};
         --button-tertiary-default: transparent;
-        --button-primary-light-default: #{constants.$alpha-color-red-2};
-        --button-primary-hover: #{constants.$color-red-5};
+        --button-primary-light-default: rgba(31, 58, 138, 0.12);
+        --button-primary-hover: var(--brand-primary-hover);
         --button-secondary-hover: #{constants.$alpha-color-white-3};
-        --button-tertiary-hover: #{constants.$alpha-color-red-1};
-        --button-primary-light-hover: #{constants.$alpha-color-red-3};
+        --button-tertiary-hover: rgba(31, 58, 138, 0.08);
+        --button-primary-light-hover: rgba(31, 58, 138, 0.18);
         --button-toggle-primary: #{constants.$color-blue-3};
         --button-toggle-secondary: #{constants.$color-black-8};
         --button-toggle-alternate: #{constants.$color-black-8};
