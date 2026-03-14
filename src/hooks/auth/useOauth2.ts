@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 import RootStore from '@/stores/root-store';
 import { handleOidcAuthFailure } from '@/utils/auth-utils';
 import { Analytics } from '@deriv-com/analytics';
-import { OAuth2Logout } from '@deriv-com/auth-client';
 import { startDerivPkceLogin } from '@/components/shared/utils/config/config';
 
 /**
@@ -59,20 +58,22 @@ export const useOauth2 = ({
     const logoutHandler = async () => {
         client?.setIsLoggingOut(true);
         try {
-            await OAuth2Logout({
-                redirectCallbackUri: `${window.location.origin}/callback`,
-                WSLogoutAndRedirect: handleLogout ?? (() => Promise.resolve()),
-                postLogoutRedirectUri: window.location.origin,
-            }).catch(err => {
-                // eslint-disable-next-line no-console
-                console.error(err);
-            });
+            await (handleLogout?.() ?? Promise.resolve());
             await client?.logout().catch(err => {
                 // eslint-disable-next-line no-console
-                console.error('Error during TMB logout:', err);
+                console.error('Logout error:', err);
             });
 
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('active_loginid');
+            localStorage.removeItem('clientAccounts');
+            localStorage.removeItem('accountsList');
+            localStorage.removeItem('callback_token');
+
+            Cookies.set('logged_state', 'false', { path: '/', expires: 30, secure: true });
+
             Analytics.reset();
+            window.location.assign('/');
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error(error);
